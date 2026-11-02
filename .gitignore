@@ -1,0 +1,42 @@
+# Sensitive files
+config.json
+.env
+*.pem
+*.key
+sync.sh
+deploy.sh
+cptorh*.sh
+
+# Local package artifacts (DKMS module + patched firmware debs — supply your own)
+*.deb
+debs/
+
+# Local state
+tmp/
+*.bak_unlock_*
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+*.egg-info/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Big files
+*.pth
+*.ckpt
+*.safetensors
+*.bin
+models/
+weights/
+
+# Logs
+*.log
+*.tmp

@@ -1,0 +1,12 @@
+gpu-unlock-rh-40xx
+Copyright (c) 2026 RH-RunningHub
+
+This project provides deployment and hot-reboot tooling for unlocking the
+tensor cores of RTX 4090 (10de:2684) / RTX 4090D (10de:2685) GPUs on Ubuntu,
+based on the upstream gpu-unlock kernel module and firmware packages.
+
+This repository itself ships no NVIDIA software: the DKMS module source and
+the patched firmware are provided as separate packages by the upstream
+gpu-unlock project and must be obtained independently (see README).
+
+Licensed under the MIT License (see LICENSE).

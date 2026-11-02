@@ -1,0 +1,19 @@
+#!/bin/sh
+# initramfs hook: strip nvidia kernel modules out of the initramfs.
+#
+# Why this hook exists: initramfs-tools' default MODULES=most packs nvidia.ko
+# (and companions) into the initramfs. At boot, udev then loads and binds the
+# NVIDIA driver BEFORE the gpu_unlock module gets its chance, the unlock
+# module finds every target card busy and exits with -EBUSY (-16) — with no
+# other diagnostic output. Cold-booting does not fix this; removing the
+# modules from the initramfs does.
+#
+# The name prefix "zz-" makes it run last, after every copy hook has done its
+# job. Must be installed BEFORE `dpkg -i`.
+PREREQ=""
+prereqs() { echo "$PREREQ"; }
+case "$1" in
+    prereqs) prereqs; exit 0;;
+esac
+find ${DESTDIR}/lib/modules -name 'nvidia*.ko*' -delete 2>/dev/null
+exit 0

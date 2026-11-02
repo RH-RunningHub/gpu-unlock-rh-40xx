@@ -1,0 +1,26 @@
+#!/bin/sh
+# initramfs hook: copy the gpu-unlock firmware files into the initramfs.
+#
+# Why this hook exists: the firmware deb installs files under
+# /usr/lib/firmware/gpu-unlock/ but ships no initramfs hook of its own, and
+# Ubuntu 22.04's initramfs-tools has no `copy_directory` helper. Without this
+# hook the unlock firmware is missing from the initramfs at boot and the
+# module fails with "firmware load failed (-2)".
+#
+# Must be installed BEFORE `dpkg -i` so that the dpkg-triggered initramfs
+# rebuild is already the skinny one.
+PREREQ=""
+prereqs() { echo "$PREREQ"; }
+case "$1" in
+    prereqs) prereqs; exit 0;;
+esac
+. /usr/share/initramfs-tools/hook-functions
+for dir in /usr/lib/firmware/gpu-unlock/*; do
+    [ -d "$dir" ] || continue
+    ver=$(basename "$dir")
+    for f in "$dir"/*; do
+        [ -f "$f" ] || continue
+        copy_file firmware "$f" "/usr/lib/firmware/gpu-unlock/$ver/$(basename "$f")"
+    done
+done
+exit 0
