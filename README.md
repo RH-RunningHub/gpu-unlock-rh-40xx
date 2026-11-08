@@ -9,6 +9,8 @@
 
 Deployment toolkit for unlocking the tensor cores of **RTX 4090 (10de:2684) / RTX 4090D (10de:2685)** on Ubuntu servers, with a focus on **hot-reboot activation** — no power cycle needed.
 
+> **🆕 Update (2026-11): Windows 4090D single-machine unlock.** The same tensor unlock now runs on a Windows 10/11 desktop via an unsigned UEFI preboot program that re-applies the unlock at every boot — no USB, no VBIOS flash, safe rollback. Entirely different mechanics from the Linux path below; see **[windows/README.md](windows/README.md)**.
+
 ## ✨ Features
 
 - **🔥 Hot-reboot activation** — no power cycle, no datacenter visit: one ordinary reboot unlocks every card, turning activation from an hours-long maintenance window into a minutes-long routine operation.
@@ -156,7 +158,12 @@ This project is released under the [MIT License](LICENSE). The upstream kernel m
 [![RunningHub International](https://img.shields.io/badge/RunningHub-International-7B61FF)](https://www.runninghub.ai/?inviteCode=rh-v1367)
 
 - Upstream Project: [gpu-unlock-ada (JustAResearcher)](https://github.com/JustAResearcher/gpu-unlock-ada)
+- Windows 4090D unlock base: [gpu-unlock-for-windows (Zihao-Wu06)](https://github.com/Zihao-Wu06/gpu-unlock-for-windows)
+- Windows port reference: [gpu-unlock-4070tis-ad103-win (Yuuki-Rosario)](https://github.com/Yuuki-Rosario/gpu-unlock-4070tis-ad103-win) — card-porting notes (`PORT-2705.md`)
+- Windows Secure Boot reference: [gpu-unlock-4080s (Goldlionren)](https://github.com/Goldlionren/gpu-unlock-4080s)
 
 ## 🙏 Acknowledgements
 
 This project is based on [gpu-unlock-ada](https://github.com/JustAResearcher/gpu-unlock-ada) by JustAResearcher — which covers RTX 4090/4090D and other Ada-architecture device IDs — packaging deployment and hot-reboot tooling around its kernel module and firmware (the DKMS source tree also ships with installed packages under `/usr/src/gpu-unlock-1.1.1`).
+
+The Windows 4090D unlock under [`windows/`](windows/README.md) is a port of [gpu-unlock-for-windows](https://github.com/Zihao-Wu06/gpu-unlock-for-windows) by Zihao-Wu06 (GPL-2.0-only), which itself descends from gpu-unlock-ada → [Zagitta/gpu-unlock](https://github.com/Zagitta/gpu-unlock) → [TOTOROONG/AD103_win_unlocker](https://huggingface.co/TOTOROONG) (AD102 four-PLM payload) and the CMP 30/40/50HX V67 research line. Card-porting methodology follows [Yuuki-Rosario's PORT-2705 notes](https://github.com/Yuuki-Rosario/gpu-unlock-4070tis-ad103-win); Secure Boot-on operation is documented in [Goldlionren/gpu-unlock-4080s](https://github.com/Goldlionren/gpu-unlock-4080s).

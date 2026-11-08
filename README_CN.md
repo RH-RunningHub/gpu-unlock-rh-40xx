@@ -9,6 +9,8 @@
 
 RTX 4090 (10de:2684) / RTX 4090D (10de:2685) Ubuntu 服务器张量核心解锁部署工具，重点是**热重启激活**——无需断电冷启。
 
+> **🆕 更新（2026-11）：Windows 4090D 单机解锁。** 同款张量解锁现已支持 Windows 10/11 台式机：通过固件启动顺序置顶的未签名 UEFI preboot 程序，每次开机自动重放解锁——无需 U 盘、不刷 VBIOS、可安全回滚。与下方 Linux 路径机制完全不同，见 **[windows/README_CN.md](windows/README_CN.md)**。
+
 ## ✨ 功能特点
 
 - **🔥 热重启即激活** —— 不用断电冷启、不用进机房，一次普通重启全部生效；把"解锁"从小时级的运维窗口，压缩成分钟级的例行操作。
@@ -156,7 +158,12 @@ setsid nohup bash -c 'sleep 2; shutdown -r now' </dev/null >/dev/null 2>&1 &
 [![RunningHub International](https://img.shields.io/badge/RunningHub-International-7B61FF)](https://www.runninghub.ai/?inviteCode=rh-v1367)
 
 - 上游项目：[gpu-unlock-ada（JustAResearcher）](https://github.com/JustAResearcher/gpu-unlock-ada)
+- Windows 4090D 解锁底座：[gpu-unlock-for-windows（Zihao-Wu06）](https://github.com/Zihao-Wu06/gpu-unlock-for-windows)
+- Windows 移植参照：[gpu-unlock-4070tis-ad103-win（Yuuki-Rosario）](https://github.com/Yuuki-Rosario/gpu-unlock-4070tis-ad103-win) —— 加卡移植笔记（`PORT-2705.md`）
+- Windows Secure Boot 参照：[gpu-unlock-4080s（Goldlionren）](https://github.com/Goldlionren/gpu-unlock-4080s)
 
 ## 🙏 致谢
 
 本项目基于 [gpu-unlock-ada](https://github.com/JustAResearcher/gpu-unlock-ada)（作者 JustAResearcher）的内核模块与固件——上游覆盖 RTX 4090/4090D 及其他 Ada 架构设备 ID——为其提供部署与热重启工具封装（已安装的机器上 DKMS 源码树位于 `/usr/src/gpu-unlock-1.1.1`）。
+
+[`windows/`](windows/README_CN.md) 下的 Windows 4090D 解锁是 [gpu-unlock-for-windows](https://github.com/Zihao-Wu06/gpu-unlock-for-windows)（Zihao-Wu06，GPL-2.0-only）的移植——其自身源自 gpu-unlock-ada → [Zagitta/gpu-unlock](https://github.com/Zagitta/gpu-unlock) → [TOTOROONG/AD103_win_unlocker](https://huggingface.co/TOTOROONG)（AD102 四重 PLM payload）以及 CMP 30/40/50HX 的 V67 研究线。加卡方法论遵循 [Yuuki-Rosario 的 PORT-2705 笔记](https://github.com/Yuuki-Rosario/gpu-unlock-4070tis-ad103-win)；Secure Boot 开启运行见 [Goldlionren/gpu-unlock-4080s](https://github.com/Goldlionren/gpu-unlock-4080s)。

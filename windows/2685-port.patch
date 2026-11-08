@@ -1,0 +1,110 @@
+diff --git a/efi/windows/uefi/app.c b/efi/windows/uefi/app.c
+index a19cfb8..a1dfd7e 100644
+--- a/efi/windows/uefi/app.c
++++ b/efi/windows/uefi/app.c
+@@ -288,6 +288,7 @@ static EFI_STATUS ForEachPair(char *Text,PairFn Fn,VOID *Context) {
+ typedef struct {UINT16 device;UINT16 chipset;const char *name;UINT32 vram_min,vram_max;BOOLEAN verified;} GU_CHIP;
+ static const GU_CHIP Chips[]={
+   {0x2684,0x192,"GeForce RTX 4090",24512,24576,TRUE},
++  {0x2685,0x192,"GeForce RTX 4090 D",24512,24576,FALSE},
+   {0x2704,0x193,"GeForce RTX 4080",16256,16384,FALSE},
+   {0x2702,0x193,"GeForce RTX 4080 SUPER",16256,16384,FALSE},
+   {0x2705,0x193,"GeForce RTX 4070 Ti SUPER",16256,16384,FALSE},
+diff --git a/installer/payload/manifest.json b/installer/payload/manifest.json
+index d98bc58..0a85211 100644
+--- a/installer/payload/manifest.json
++++ b/installer/payload/manifest.json
+@@ -4,7 +4,7 @@
+   "efi": {
+     "file": "gpuunlock.efi",
+     "size": 96256,
+-    "sha256": "e2780f1a0790c5684b6555480aad8a7794f7e04ffa3f54b885bceb5c539bc231"
++    "sha256": "b27ac31ecfa9d9592e1e53fecf199ab011a8d7c163b44b95ff8d16208ce212a9"
+   },
+   "supported": {
+     "gpus": [
+@@ -15,6 +15,13 @@
+         "vram_mib_min": 24400,
+         "vram_mib_max": 24700
+       },
++      {
++        "id": "2685",
++        "name": "GeForce RTX 4090 D",
++        "tier": "experimental",
++        "vram_mib_min": 24400,
++        "vram_mib_max": 24700
++      },
+       {
+         "id": "2704",
+         "name": "GeForce RTX 4080",
+@@ -74,13 +81,6 @@
+       "size": 26172192,
+       "sha256": "7e118923c7a23edc36114d63273a46e3e04e9af98695a42203e7ac2dfe9fc1dc"
+     },
+-    {
+-      "name": "nvidia-utils 610.43.03 package (CachyOS archive)",
+-      "file": "nvidia-utils-610.43.03-1-x86_64_v3.pkg.tar.zst",
+-      "url": "https://archive.cachyos.org/archive/cachyos-v3/nvidia-utils-610.43.03-1-x86_64_v3.pkg.tar.zst",
+-      "size": 314789539,
+-      "sha256": "e17e7c92eeffa178b0fe1f40eb17a47095f8fc3ce4a77bf115cf5bd5a4df86e9"
+-    },
+     {
+       "name": "Python 3.14 embeddable (only used to unpack the firmware locally)",
+       "file": "python-3.14.0-embed-amd64.zip",
+diff --git a/installer/payload/tools/windows/prepare_assets.py b/installer/payload/tools/windows/prepare_assets.py
+index edff6c3..76e9b03 100644
+--- a/installer/payload/tools/windows/prepare_assets.py
++++ b/installer/payload/tools/windows/prepare_assets.py
+@@ -22,11 +22,47 @@ def main():
+     parser.add_argument("--cache", type=Path, default=ROOT / "build/windows/inputs")
+     parser.add_argument("--offline", action="store_true")
+     args = parser.parse_args()
+-    entries = fetch_artifacts.inputs(json.loads(fetch_artifacts.MANIFEST.read_text()))
+-    source, package = [fetch_artifacts.fetch(entry, args.cache, args.offline) for entry in entries]
+-    args.output.mkdir(parents=True, exist_ok=True)
+-    subprocess.run([sys.executable, str(ROOT / "firmware/generate_v67.py"),
+-                    str(package), str(args.output)], check=True)
++    manifest = json.loads(fetch_artifacts.MANIFEST.read_text())
++    source, package = fetch_artifacts.inputs(manifest)
++    source = fetch_artifacts.fetch(source, args.cache, args.offline)
++    # Local adaptation: the pinned CachyOS nvidia-utils-610.43.03-1-x86_64_v3 package
++    # was pruned from archive.cachyos.org (404). generate_v67.py reads only three
++    # members from it (.PKGINFO, usr/lib/firmware/nvidia/610.43.03/gsp_ga10x.bin,
++    # the NVIDIA license notice) and builds both V67 payloads deterministically in
++    # code. Those three members are supplied as standalone cache files instead, each
++    # verified against the SAME pinned SHA-256 values the package path enforced
++    # (gsp 57237362..., license c692fb14..., pkgver 610.43.03-1); the payload outputs
++    # are verified against their own pins, as in generate_v67.py main().
++    cache_pkginfo = args.cache / "nvidia-610.43.03-PKGINFO"
++    cache_gsp = args.cache / "nvidia-610.43.03-gsp_ga10x.bin"
++    cache_license = args.cache / "nvidia-610.43.03-NVIDIA-LICENSE"
++    if cache_gsp.is_file() and cache_license.is_file() and cache_pkginfo.is_file():
++        sys.path.insert(0, str(ROOT / "firmware"))
++        import generate_v67
++        notice = manifest["source_artifacts"][2]["notice"]
++        if fetch_artifacts.digest(cache_gsp) != generate_v67.GSP_SHA256:
++            raise ValueError("standalone gsp_ga10x.bin does not match its pinned SHA-256")
++        if fetch_artifacts.digest(cache_license) != notice["sha256"]:
++            raise ValueError("standalone NVIDIA license does not match its pinned SHA-256")
++        if f"pkgver = {generate_v67.PACKAGE_VERSION}" not in cache_pkginfo.read_text(encoding="utf-8", errors="replace").splitlines():
++            raise ValueError("standalone PKGINFO version does not match 610.43.03-1")
++        gsp = cache_gsp.read_bytes()
++        payload = generate_v67.build_payload()
++        if generate_v67.sha256(payload) != generate_v67.PAYLOAD_SHA256:
++            raise ValueError("generated GA102 V67 image differs from its pinned SHA-256")
++        ad102_payload = generate_v67.build_ad102_payload()
++        if generate_v67.sha256(ad102_payload) != generate_v67.AD102_PAYLOAD_SHA256:
++            raise ValueError("generated AD102 V67 image differs from its pinned SHA-256")
++        args.output.mkdir(parents=True, exist_ok=True)
++        (args.output / "gsp_ga10x.bin").write_bytes(gsp)
++        (args.output / "v67-ga102-610.43.03.bin").write_bytes(payload)
++        (args.output / generate_v67.AD102_PAYLOAD_NAME).write_bytes(ad102_payload)
++        (args.output / "NVIDIA-LICENSE").write_bytes(cache_license.read_bytes())
++        print("package input replaced by file-level pinned members (gsp/license/PKGINFO); payload pins verified")
++    else:
++        package_path = fetch_artifacts.fetch(package, args.cache, args.offline)
++        subprocess.run([sys.executable, str(ROOT / "firmware/generate_v67.py"),
++                        str(package_path), str(args.output)], check=True)
+     prefix = "NVIDIA-kernel-module-source-610.43.03/src/nvidia/generated/"
+     # Extract only the two pinned source files needed by the existing generator.
+     # Do not materialize archive paths, links, or execute NVIDIA's installer.
