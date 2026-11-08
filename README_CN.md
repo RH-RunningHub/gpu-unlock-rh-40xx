@@ -157,11 +157,6 @@ setsid nohup bash -c 'sleep 2; shutdown -r now' </dev/null >/dev/null 2>&1 &
 [![RunningHub China](https://img.shields.io/badge/RunningHub-China-2F80ED)](https://www.runninghub.cn/?inviteCode=rh-v1367)
 [![RunningHub International](https://img.shields.io/badge/RunningHub-International-7B61FF)](https://www.runninghub.ai/?inviteCode=rh-v1367)
 
-- 上游项目：[gpu-unlock-ada（JustAResearcher）](https://github.com/JustAResearcher/gpu-unlock-ada)
-- Windows 4090D 解锁底座：[gpu-unlock-for-windows（Zihao-Wu06）](https://github.com/Zihao-Wu06/gpu-unlock-for-windows)
-- Windows 移植参照：[gpu-unlock-4070tis-ad103-win（Yuuki-Rosario）](https://github.com/Yuuki-Rosario/gpu-unlock-4070tis-ad103-win) —— 加卡移植笔记（`PORT-2705.md`）
-- Windows Secure Boot 参照：[gpu-unlock-4080s（Goldlionren）](https://github.com/Goldlionren/gpu-unlock-4080s)
-
 ## 🙏 致谢
 
 本项目基于 [gpu-unlock-ada](https://github.com/JustAResearcher/gpu-unlock-ada)（作者 JustAResearcher）的内核模块与固件——上游覆盖 RTX 4090/4090D 及其他 Ada 架构设备 ID——为其提供部署与热重启工具封装（已安装的机器上 DKMS 源码树位于 `/usr/src/gpu-unlock-1.1.1`）。

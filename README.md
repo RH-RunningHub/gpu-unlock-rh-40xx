@@ -157,11 +157,6 @@ This project is released under the [MIT License](LICENSE). The upstream kernel m
 [![RunningHub China](https://img.shields.io/badge/RunningHub-China-2F80ED)](https://www.runninghub.cn/?inviteCode=rh-v1367)
 [![RunningHub International](https://img.shields.io/badge/RunningHub-International-7B61FF)](https://www.runninghub.ai/?inviteCode=rh-v1367)
 
-- Upstream Project: [gpu-unlock-ada (JustAResearcher)](https://github.com/JustAResearcher/gpu-unlock-ada)
-- Windows 4090D unlock base: [gpu-unlock-for-windows (Zihao-Wu06)](https://github.com/Zihao-Wu06/gpu-unlock-for-windows)
-- Windows port reference: [gpu-unlock-4070tis-ad103-win (Yuuki-Rosario)](https://github.com/Yuuki-Rosario/gpu-unlock-4070tis-ad103-win) — card-porting notes (`PORT-2705.md`)
-- Windows Secure Boot reference: [gpu-unlock-4080s (Goldlionren)](https://github.com/Goldlionren/gpu-unlock-4080s)
-
 ## 🙏 Acknowledgements
 
 This project is based on [gpu-unlock-ada](https://github.com/JustAResearcher/gpu-unlock-ada) by JustAResearcher — which covers RTX 4090/4090D and other Ada-architecture device IDs — packaging deployment and hot-reboot tooling around its kernel module and firmware (the DKMS source tree also ships with installed packages under `/usr/src/gpu-unlock-1.1.1`).
